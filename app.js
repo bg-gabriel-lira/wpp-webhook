@@ -24,13 +24,21 @@ app.get('/', (req, res) => {
 });
 
 // Route for POST requests
-app.post('/', (req, res) => {
+app.post('/webhook', express.raw({ type: '*/*' }), (req, res) => {
+  // req.body is now a Buffer containing the raw body
+  console.log('Raw body:', req.body.toString('utf8'));
+  res.send('OK');
+});
+
+app.post('/', express.raw({ type: '*/*' }), (req, res) => {
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
   console.log(`\n\nWebhook received ${timestamp}\n`);
 
-  console.log(`HEADERS: ${JSON.stringify(req.headers, null, 2)}`)
+  console.log(`HEADERS: ${req.headers.toString('utf8')}`);
+  console.log(`BODY: ${req.body.toString('utf8')}`);
   
-  console.log(JSON.stringify(req.body, null, 2));
+  //console.log(`HEADERS: ${JSON.stringify(req.headers, null, 2)}`)
+  //console.log(JSON.stringify(req.body, null, 2));
   res.status(200).end();
 });
 
