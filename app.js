@@ -4,12 +4,15 @@ const express = require('express');
 // Create an Express app
 const app = express();
 
+
 // Middleware to parse JSON bodies
-app.use(express.json());
+//app.use(express.json());
+app.use(express.json({ verify: (req, res, buf) => { req.rawBody = buf; } }));
 
 // Set port and verify_token
 const port = process.env.PORT || 3000;
 const verifyToken = process.env.VERIFY_TOKEN;
+const APP_SECRET = 'a1c03d68de0e094fa80e5948899d1073';
 
 // Route for GET requests
 app.get('/', (req, res) => {
@@ -24,13 +27,29 @@ app.get('/', (req, res) => {
 });
 
 // Route for POST requests
-app.post('/webhook', express.raw({ type: '*/*' }), (req, res) => {
-  // req.body is now a Buffer containing the raw body
-  console.log('Raw body:', req.body.toString('utf8'));
-  res.send('OK');
+app.post('/', (req, res) => {
+  const signature = req.headers['x-hub-signature-256'];
+ 
+  if (!signature) {
+    return res.status(401).send('Signature missing');
+  }
+ 
+  const expectedSignature = 'sha256=' + crypto.createHmac('sha256', APP_SECRET)
+    .update(req.rawBody)
+    .digest('hex');
+ 
+  if (signature !== expectedSignature) {
+    return res.status(403).send('Invalid signature');
+  }
+ 
+  // Process the webhook payload
+  const payload = req.body;
+  console.log('Webhook payload:', payload);
+ 
+  res.status(200).send('Webhook received successfully');
 });
 
-app.post('/', express.raw({ type: '*/*' }), (req, res) => {
+app.post('/webhook', (req, res) => {
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
   console.log(`\n\nWebhook received ${timestamp}\n`);
 
