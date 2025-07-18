@@ -1,5 +1,6 @@
 // Import Express.js
 const express = require('express');
+const crypto = require('crypto');
 
 // Create an Express app
 const app = express();
