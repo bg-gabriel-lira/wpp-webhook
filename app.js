@@ -46,6 +46,7 @@ app.post('/', (req, res) => {
   // Process the webhook payload
   const payload = req.body;
   console.log('Webhook payload:', payload);
+  console.log("BOIDY: ", JSON.stringify(req.body));
  
   res.status(200).send('Webhook received successfully');
 });
