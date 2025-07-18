@@ -47,7 +47,7 @@ app.post('/', (req, res) => {
   const payload = req.body;
   console.log('Webhook payload:', payload);
 
-  console.log("HEADERS:", req.headers.toString('utf8'));
+  console.log("HEADERS:", JSON.stringify(req.headers));
   console.log("BOIDY: ", JSON.stringify(req.body));
  
   res.status(200).send('Webhook received successfully');
